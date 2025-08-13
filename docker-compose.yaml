@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+
+  # PostgreSQL Database Service
+  pessoa-db:
+    image: postgres:17-alpine
+    container_name: pessoa_db
+    environment:
+      POSTGRES_DB: pessoa_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432" # Expose DB port to the host for direct access with a DB client
+    restart: always
+
+  # Java Application Service
+  app:
+    build:
+      context: ./app # Path to the app's Dockerfile
+    restart: on-failure
+    ports:
+      - "8081:8080" # Expose for direct access if needed
+    depends_on:
+      - pessoa-db # Wait for the database to be ready
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pessoa-db:5432/pessoa_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
+  # Nginx Reverse Proxy Service
+  nginx:
+    build:
+      context: ./nginx
+    restart: always
+    ports:
+      - "80:80" # Main entry point for all traffic
+    depends_on:
+      - app
+
+# Volumes to persist database data
+volumes:
+  postgres_data:
+
