@@ -18,12 +18,25 @@ services:
     restart: always
 
   # Java Application Service
-  app:
+  app1:
     build:
       context: ./app # Path to the app's Dockerfile
     restart: on-failure
     ports:
       - "8081:8080" # Expose for direct access if needed
+    depends_on:
+      - pessoa-db # Wait for the database to be ready
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pessoa-db:5432/pessoa_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
+  app2:
+    build:
+      context: ./app # Path to the app's Dockerfile
+    restart: on-failure
+    ports:
+      - "8082:8080" # Expose for direct access if needed
     depends_on:
       - pessoa-db # Wait for the database to be ready
     environment:
@@ -39,9 +52,14 @@ services:
     ports:
       - "80:80" # Main entry point for all traffic
     depends_on:
-      - app
+      - app1
+      - app2
 
 # Volumes to persist database data
 volumes:
   postgres_data:
+
+networks:
+  app_network:
+    driver: bridge
 
