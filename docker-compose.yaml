@@ -22,27 +22,37 @@ services:
     build:
       context: ./app # Path to the app's Dockerfile
     restart: on-failure
-    ports:
-      - "8081:8080" # Expose for direct access if needed
+    expose:
+        - "80" # Expose for internal communication within the Docker network
     depends_on:
       - pessoa-db # Wait for the database to be ready
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pessoa-db:5432/pessoa_db
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5' # Limita o serviço a usar no máximo 50% de um núcleo de CPU
+          memory: '1.5GB' # Limita o serviço a usar no máximo 512 Megabytes de RAM
 
   app2:
     build:
       context: ./app # Path to the app's Dockerfile
     restart: on-failure
-    ports:
-      - "8082:8080" # Expose for direct access if needed
+    expose:
+      - "80" # Expose for internal communication within the Docker network
     depends_on:
       - pessoa-db # Wait for the database to be ready
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pessoa-db:5432/pessoa_db
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5' # Limita o serviço a usar no máximo 50% de um núcleo de CPU
+          memory: '1.5GB' # Limita o serviço a usar no máximo 512 Megabytes de RAM
 
   # Nginx Reverse Proxy Service
   nginx:
