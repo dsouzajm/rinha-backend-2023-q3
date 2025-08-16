@@ -23,7 +23,7 @@ services:
       context: ./app # Path to the app's Dockerfile
     restart: on-failure
     expose:
-        - "80" # Expose for internal communication within the Docker network
+      - "80" # Expose for internal communication within the Docker network
     depends_on:
       - pessoa-db # Wait for the database to be ready
     environment:
@@ -60,7 +60,7 @@ services:
       context: ./nginx
     restart: always
     ports:
-      - "80:80" # Main entry point for all traffic
+      - "9999:9999" # Main entry point for all traffic
     depends_on:
       - app1
       - app2
