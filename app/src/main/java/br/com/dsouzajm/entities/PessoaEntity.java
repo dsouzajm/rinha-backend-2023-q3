@@ -4,13 +4,16 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Builder;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 @Builder
+@Getter
+@Setter
+@AllArgsConstructor
 @Entity
 @Table(name = "pessoas")
 public class PessoaEntity {

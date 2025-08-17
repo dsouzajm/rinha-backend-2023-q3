@@ -1,5 +1,6 @@
 package br.com.dsouzajm.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class Pessoa {
     private UUID id;
     private String apelido;
