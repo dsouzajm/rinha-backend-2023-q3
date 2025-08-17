@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -24,9 +26,18 @@ public class PessoaController {
         return ResponseEntity.ok(PessoaUtils.toPessoaResponse(pessoaService.getPessoaById(id)));
     }
 
+    @GetMapping
+    public ResponseEntity<List<PessoaResponse>> searchPessoasByTermo(@RequestParam("t") String termo) {
+        List<Pessoa> pessoasEncontradas = pessoaService.findByTermo(termo);
+        List<PessoaResponse> responseList = pessoasEncontradas.stream()
+                .map(PessoaUtils::toPessoaResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responseList);
+    }
+
     @GetMapping("/contagem-pessoas")
-    public String getContagem(){
-        return "1234";
+    public ResponseEntity<Long> getContagem(){
+        return ResponseEntity.ok(pessoaService.getContagemPessoas());
     }
 
     @PostMapping

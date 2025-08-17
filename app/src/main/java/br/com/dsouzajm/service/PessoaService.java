@@ -7,7 +7,9 @@ import br.com.dsouzajm.utils.PessoaUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -23,5 +25,16 @@ public class PessoaService {
     public Pessoa getPessoaById(UUID id) {
         PessoaEntity pessoaEntity = pessoaRepository.findById(id).orElse(null);
         return PessoaUtils.toPessoa(pessoaEntity);
+    }
+
+    public List<Pessoa> findByTermo(String termo) {
+        List<PessoaEntity> pessoas = pessoaRepository.findByTermo(termo);
+        return pessoas.stream()
+                .map(PessoaUtils::toPessoa)
+                .collect(Collectors.toList());
+    }
+
+    public long getContagemPessoas() {
+        return pessoaRepository.count();
     }
 }
