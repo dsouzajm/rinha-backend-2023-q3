@@ -1,10 +1,8 @@
 package br.com.dsouzajm.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,10 +12,12 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
+@RequiredArgsConstructor
 @Entity
 @Table(name = "pessoas")
 public class PessoaEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(name = "apelido", unique = true, nullable = false, length = 32)

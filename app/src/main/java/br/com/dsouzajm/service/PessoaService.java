@@ -14,14 +14,10 @@ import java.util.UUID;
 public class PessoaService {
     public final PessoaRepository pessoaRepository;
 
-    public void savePessoa(Pessoa pessoa) {
-        PessoaEntity pessoaEntity = PessoaEntity.builder()
-                .apelido(pessoa.getApelido())
-                .nome(pessoa.getNome())
-                .nascimento(pessoa.getNascimento())
-                .stack(pessoa.getStack())
-            .build();
-        pessoaRepository.save(pessoaEntity);
+    public Pessoa savePessoa(Pessoa pessoa) {
+        PessoaEntity pessoaEntity = PessoaUtils.toPessoaEntity(pessoa);
+        PessoaEntity pessoaSaved = pessoaRepository.save(pessoaEntity);
+        return PessoaUtils.toPessoa(pessoaSaved);
     }
 
     public Pessoa getPessoaById(UUID id) {
