@@ -4,10 +4,12 @@ import br.com.dsouzajm.service.PessoaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RestController("/pessoas")
+@RestController
+@RequestMapping("/pessoas")
 public class PessoaController {
     public final PessoaService pessoaService;
 
