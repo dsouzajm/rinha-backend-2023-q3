@@ -8,7 +8,9 @@ import br.com.dsouzajm.utils.PessoaUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -30,6 +32,11 @@ public class PessoaController {
     @PostMapping
     public ResponseEntity<PessoaResponse> savePessoa(@RequestBody PessoaRequest request) {
         Pessoa pessoa = pessoaService.savePessoa(PessoaUtils.toPessoa(request));
-        return ResponseEntity.ok(PessoaUtils.toPessoaResponse(pessoa));
+        URI locationUri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(pessoa.getId())
+            .toUri();
+        return ResponseEntity.created(locationUri).body(PessoaUtils.toPessoaResponse(pessoa));
     }
 }
