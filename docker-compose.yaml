@@ -25,12 +25,17 @@ services:
     restart: on-failure
     expose:
       - "80" # Expose for internal communication within the Docker network
+    ports:
+      - "5005:5005"
     depends_on:
       - pessoa-db # Wait for the database to be ready
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pessoa-db:5432/pessoa_db
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      _JAVA_OPTIONS: >
+        -Xdebug 
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     deploy:
       resources:
         limits:
@@ -44,17 +49,23 @@ services:
     restart: on-failure
     expose:
       - "80" # Expose for internal communication within the Docker network
+    ports:
+      - "5006:5006"
     depends_on:
       - pessoa-db # Wait for the database to be ready
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pessoa-db:5432/pessoa_db
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      _JAVA_OPTIONS: >
+        -Xdebug 
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006
     deploy:
       resources:
         limits:
           cpus: '0.5' # Limita o serviço a usar no máximo 50% de um núcleo de CPU
           memory: '1.5GB' # Limita o serviço a usar no máximo 512 Megabytes de RAM
+
 
   # Nginx Reverse Proxy Service
   nginx:
