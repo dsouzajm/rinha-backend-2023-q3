@@ -3,7 +3,7 @@ package br.com.dsouzajm.utils;
 import br.com.dsouzajm.controller.json.PessoaRequest;
 import br.com.dsouzajm.controller.json.PessoaResponse;
 import br.com.dsouzajm.domain.Pessoa;
-import br.com.dsouzajm.entities.PessoaEntity;
+import br.com.dsouzajm.entity.PessoaEntity;
 
 public class PessoaUtils {
     public static Pessoa toPessoa(PessoaEntity pessoaEntity) {
