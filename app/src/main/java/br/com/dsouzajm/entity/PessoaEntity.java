@@ -1,8 +1,7 @@
-package br.com.dsouzajm.entities;
+package br.com.dsouzajm.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.boot.autoconfigure.web.WebProperties;
 
 import java.time.LocalDate;
 import java.util.List;
