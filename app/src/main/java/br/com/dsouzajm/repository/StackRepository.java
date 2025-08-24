@@ -10,6 +10,5 @@ import java.util.UUID;
 
 public interface StackRepository extends JpaRepository<StackEntity, UUID> {
     @Query("SELECT s FROM StackEntity s WHERE LOWER(s.stackItem) LIKE LOWER(CONCAT('%', :termo, '%'))")
-    //@Query("SELECT s FROM StackEntity s")
     public List<StackEntity> findByTermo(String termo);
 }

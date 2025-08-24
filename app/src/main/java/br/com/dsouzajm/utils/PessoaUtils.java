@@ -48,8 +48,8 @@ public class PessoaUtils {
 
     public static Pessoa toPessoa(PessoaRequest pessoaRequest) {
         ArrayList<Stack> pessoaStacks = new ArrayList<>();
-        if(pessoaRequest.stacks() != null) {
-            List<String> pessoaRequestStacks = pessoaRequest.stacks();
+        if(pessoaRequest.stack() != null) {
+            List<String> pessoaRequestStacks = pessoaRequest.stack();
             for (String stackItem : pessoaRequestStacks) {
                 Stack stack = new Stack(null, stackItem);
                 pessoaStacks.add(stack);
@@ -82,7 +82,6 @@ public class PessoaUtils {
                 pessoaEntityStacks.add(stackEntity);
             }
         }
-        //pessoaEntity.setStacks(pessoaEntityStacks);
         return pessoaEntity;
     }
 }
