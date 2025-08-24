@@ -16,5 +16,5 @@ public class Pessoa {
     private String apelido;
     private String nome;
     private LocalDate nascimento;
-    private List<String> stack;
+    private List<Stack> stacks;
 }

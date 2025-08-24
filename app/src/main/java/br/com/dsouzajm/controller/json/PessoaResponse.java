@@ -9,6 +9,6 @@ public record PessoaResponse(
     String apelido,
     String nome,
     LocalDate nascimento,
-    List<String> stack
+    List<String> stacks
 ) {
 }

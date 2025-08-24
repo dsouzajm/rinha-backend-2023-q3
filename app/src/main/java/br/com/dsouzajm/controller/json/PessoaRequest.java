@@ -7,6 +7,6 @@ public record PessoaRequest(
     String apelido,
     String nome,
     LocalDate nascimento,
-    List<String> stack
+    List<String> stacks
 ) {
 }

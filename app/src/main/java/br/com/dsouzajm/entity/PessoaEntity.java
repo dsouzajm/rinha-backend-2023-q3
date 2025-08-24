@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class PessoaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false, unique = true)
     private UUID id;
 
     @Column(name = "apelido", unique = true, nullable = false, length = 32)
@@ -28,6 +30,18 @@ public class PessoaEntity {
     @Column(name = "nascimento", nullable = false)
     private LocalDate nascimento;
 
-    @Column(name = "stack_item")
-    private List<String> stack;
+    // CORREÇÃO: O valor de 'mappedBy' deve ser "pessoa", o nome do campo na StackEntity
+    @OneToMany(mappedBy = "pessoaEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<StackEntity> stacks = new ArrayList<>();
+
+    // Método auxiliar para sincronizar os dois lados da relação
+//    public void setStacks(List<StackEntity> stacks) {
+//        if (stacks != null) {
+//            this.stacks.clear();
+//            for (StackEntity stack : stacks) {
+//                stack.setPessoaEntity(this); // Define a referência de volta
+//                this.stacks.add(stack);
+//            }
+//        }
+//    }
 }
