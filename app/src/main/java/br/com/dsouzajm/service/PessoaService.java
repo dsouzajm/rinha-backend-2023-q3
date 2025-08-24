@@ -1,7 +1,6 @@
 package br.com.dsouzajm.service;
 
 import br.com.dsouzajm.domain.Pessoa;
-import br.com.dsouzajm.domain.Stack;
 import br.com.dsouzajm.entity.PessoaEntity;
 import br.com.dsouzajm.entity.StackEntity;
 import br.com.dsouzajm.repository.PessoaRepository;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -39,9 +39,16 @@ public class PessoaService {
         return PessoaUtils.toPessoa(pessoaEntity);
     }
 
-    public List<Pessoa> findByTermo(String termo) {
-        List<PessoaEntity> pessoas = pessoaRepository.findByTermo(termo);
-        return pessoas.stream()
+    public List<Pessoa> getByTermo(String termo) {
+        List<PessoaEntity> pessoasEntity = pessoaRepository.findByTermo(termo);
+        List<StackEntity> stacks = stackRepository.findByTermo(termo);
+        for(StackEntity stack : stacks) {
+            Optional<PessoaEntity> pessoaEntity = pessoaRepository.findById(stack.getPessoaEntity().getId());
+            if(pessoaEntity.isPresent()){
+                pessoasEntity.add(pessoaEntity.get());
+            }
+        }
+        return pessoasEntity.stream()
                 .map(PessoaUtils::toPessoa)
                 .collect(Collectors.toList());
     }

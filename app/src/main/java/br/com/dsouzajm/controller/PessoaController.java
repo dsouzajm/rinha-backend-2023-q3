@@ -27,8 +27,8 @@ public class PessoaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PessoaResponse>> searchPessoasByTermo(@RequestParam("t") String termo) {
-        List<Pessoa> pessoasEncontradas = pessoaService.findByTermo(termo);
+    public ResponseEntity<List<PessoaResponse>> getPessoasByTermo(@RequestParam("t") String termo) {
+        List<Pessoa> pessoasEncontradas = pessoaService.getByTermo(termo);
         List<PessoaResponse> responseList = pessoasEncontradas.stream()
                 .map(PessoaUtils::toPessoaResponse)
                 .collect(Collectors.toList());

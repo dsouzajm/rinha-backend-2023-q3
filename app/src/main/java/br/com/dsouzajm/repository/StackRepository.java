@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface StackRepository extends JpaRepository<StackEntity, UUID> {
-    @Query("SELECT p FROM PessoaEntity p WHERE LOWER(p.nome) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(p.apelido) LIKE LOWER(CONCAT('%', :termo, '%'))")
-    public List<PessoaEntity> findByTermo(String termo);
+    @Query("SELECT s FROM StackEntity s WHERE LOWER(s.stackItem) LIKE LOWER(CONCAT('%', :termo, '%'))")
+    //@Query("SELECT s FROM StackEntity s")
+    public List<StackEntity> findByTermo(String termo);
 }
