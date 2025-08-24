@@ -33,15 +33,4 @@ public class PessoaEntity {
     // CORREÇÃO: O valor de 'mappedBy' deve ser "pessoa", o nome do campo na StackEntity
     @OneToMany(mappedBy = "pessoaEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<StackEntity> stacks = new ArrayList<>();
-
-    // Método auxiliar para sincronizar os dois lados da relação
-//    public void setStacks(List<StackEntity> stacks) {
-//        if (stacks != null) {
-//            this.stacks.clear();
-//            for (StackEntity stack : stacks) {
-//                stack.setPessoaEntity(this); // Define a referência de volta
-//                this.stacks.add(stack);
-//            }
-//        }
-//    }
 }

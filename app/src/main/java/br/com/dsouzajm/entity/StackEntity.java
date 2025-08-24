@@ -22,7 +22,6 @@ public class StackEntity {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    /*@JoinColumn(name = "pessoaEntity_id")*/
     @JoinColumn(name = "pessoa_id")
     private PessoaEntity pessoaEntity;
 
