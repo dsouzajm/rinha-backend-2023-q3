@@ -5,6 +5,7 @@ import br.com.dsouzajm.controller.json.PessoaResponse;
 import br.com.dsouzajm.domain.Pessoa;
 import br.com.dsouzajm.service.PessoaService;
 import br.com.dsouzajm.utils.PessoaUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class PessoaController {
     }
 
     @PostMapping
-    public ResponseEntity<PessoaResponse> savePessoa(@RequestBody PessoaRequest request) {
+    public ResponseEntity<PessoaResponse> savePessoa(@Valid @RequestBody PessoaRequest request) {
         Pessoa pessoa = pessoaService.savePessoa(PessoaUtils.toPessoa(request));
         URI locationUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
