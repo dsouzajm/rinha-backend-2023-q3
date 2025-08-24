@@ -1,6 +1,6 @@
 package br.com.dsouzajm.repository;
 
-import br.com.dsouzajm.entity.PessoaEntity;
+import br.com.dsouzajm.entities.PessoaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

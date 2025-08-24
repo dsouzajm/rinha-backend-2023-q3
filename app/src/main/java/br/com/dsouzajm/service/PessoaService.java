@@ -1,7 +1,7 @@
 package br.com.dsouzajm.service;
 
 import br.com.dsouzajm.domain.Pessoa;
-import br.com.dsouzajm.entity.PessoaEntity;
+import br.com.dsouzajm.entities.PessoaEntity;
 import br.com.dsouzajm.repository.PessoaRepository;
 import br.com.dsouzajm.utils.PessoaUtils;
 import lombok.RequiredArgsConstructor;
