@@ -6,6 +6,7 @@ import br.com.dsouzajm.domain.Pessoa;
 import br.com.dsouzajm.service.PessoaService;
 import br.com.dsouzajm.utils.PessoaUtils;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class PessoaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PessoaResponse>> getPessoasByTermo(@RequestParam("t") String termo) {
+    public ResponseEntity<List<PessoaResponse>> getPessoasByTermo(@RequestParam("t") @NotBlank String termo) {
         List<Pessoa> pessoasEncontradas = pessoaService.getByTermo(termo);
         List<PessoaResponse> responseList = pessoasEncontradas.stream()
                 .map(PessoaUtils::toPessoaResponse)
