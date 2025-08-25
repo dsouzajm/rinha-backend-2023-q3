@@ -7,6 +7,8 @@ import br.com.dsouzajm.repository.PessoaRepository;
 import br.com.dsouzajm.repository.StackRepository;
 import br.com.dsouzajm.utils.PessoaUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -40,14 +42,13 @@ public class PessoaService {
     }
 
     public List<Pessoa> getByTermo(String termo) {
-        List<PessoaEntity> pessoasEntity = pessoaRepository.findByTermo(termo);
-        List<StackEntity> stacks = stackRepository.findByTermo(termo);
-        for(StackEntity stack : stacks) {
-            Optional<PessoaEntity> pessoaEntity = pessoaRepository.findById(stack.getPessoaEntity().getId());
-            if(pessoaEntity.isPresent()){
-                pessoasEntity.add(pessoaEntity.get());
-            }
-        }
+        // Cria um objeto de paginação para buscar a primeira página com 50 resultados
+        Pageable pageable = PageRequest.of(0, 50);
+
+        // Chama o repositório com o termo e a paginação
+        List<PessoaEntity> pessoasEntity = pessoaRepository.findByTermo(termo, pageable);
+
+        // Converte a lista de entidades para o domínio
         return pessoasEntity.stream()
                 .map(PessoaUtils::toPessoa)
                 .collect(Collectors.toList());

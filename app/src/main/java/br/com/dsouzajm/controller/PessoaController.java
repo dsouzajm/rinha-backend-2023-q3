@@ -24,7 +24,11 @@ public class PessoaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<PessoaResponse> getPessoa(@PathVariable UUID id) {
-        return ResponseEntity.ok(PessoaUtils.toPessoaResponse(pessoaService.getPessoaById(id)));
+        PessoaResponse pessoaResponse = PessoaUtils.toPessoaResponse(pessoaService.getPessoaById(id));
+        if(pessoaResponse == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(pessoaResponse);
     }
 
     @GetMapping
