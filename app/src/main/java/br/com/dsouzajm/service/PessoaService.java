@@ -9,6 +9,7 @@ import br.com.dsouzajm.utils.PessoaUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,12 +42,21 @@ public class PessoaService {
         return PessoaUtils.toPessoa(pessoaEntity);
     }
 
+    /*public List<Pessoa> getByTermo(String termo) {
+        List<PessoaEntity> pessoasEntity = pessoaRepository.findByTermo(termo, PageRequest.of(0, 50));
+        return pessoasEntity.stream()
+                .map(PessoaUtils::toPessoa)
+                .collect(Collectors.toList());
+    }*/
+
     public List<Pessoa> getByTermo(String termo) {
         // Cria um objeto de paginação para buscar a primeira página com 50 resultados
-        Pageable pageable = PageRequest.of(0, 50);
+        //Pageable pageable = PageRequest.of(0, 50);
 
         // Chama o repositório com o termo e a paginação
-        List<PessoaEntity> pessoasEntity = pessoaRepository.findByTermo(termo, pageable);
+        //List<PessoaEntity> pessoasEntity = pessoaRepository.findByTermoNativo(termo);
+        List<PessoaEntity> pessoasEntity = pessoaRepository.findByTermoComLimite(termo);
+
 
         // Converte a lista de entidades para o domínio
         return pessoasEntity.stream()

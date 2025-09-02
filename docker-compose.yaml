@@ -39,8 +39,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75' # Limita o serviço a usar no máximo 50% de um núcleo de CPU
-          memory: '1.5GB' # Limita o serviço a usar no máximo 512 Megabytes de RAM
+          cpus: '0.75'
+          memory: '1.5GB'
 
   app2:
     build:
@@ -63,8 +63,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75' # Limita o serviço a usar no máximo 50% de um núcleo de CPU
-          memory: '1.5GB' # Limita o serviço a usar no máximo 512 Megabytes de RAM
+          cpus: '0.75'
+          memory: '1.5GB'
 
 
   # Nginx Reverse Proxy Service

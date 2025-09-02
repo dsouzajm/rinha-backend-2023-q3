@@ -8,6 +8,7 @@ import br.com.dsouzajm.utils.PessoaUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -40,6 +41,14 @@ public class PessoaController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responseList);
     }
+
+    /*@GetMapping
+    public ResponseEntity<Page<PessoaResponse>> getPessoasByTermo(
+            @RequestParam(name = "t") @NotBlank String termo) {
+        Page<Pessoa> paginaDePessoas = pessoaService.getByTermo(termo);
+        Page<PessoaResponse> paginaDeResponse = paginaDePessoas.map(PessoaUtils::toPessoaResponse);
+        return ResponseEntity.ok(paginaDeResponse);
+    }*/
 
     @GetMapping("/contagem-pessoas")
     public ResponseEntity<Long> getContagem(){
