@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/pessoas")
+//@RequestMapping("/pessoas")
 public class PessoaController {
     public final PessoaService pessoaService;
 
-    @GetMapping("/{id}")
+    @GetMapping("/pessoas/{id}")
     public ResponseEntity<PessoaResponse> getPessoa(@PathVariable UUID id) {
         PessoaResponse pessoaResponse = PessoaUtils.toPessoaResponse(pessoaService.getPessoaById(id));
         if(pessoaResponse == null) {
@@ -33,7 +33,7 @@ public class PessoaController {
         return ResponseEntity.ok(pessoaResponse);
     }
 
-    @GetMapping
+    @GetMapping("/pessoas")
     public ResponseEntity<List<PessoaResponse>> getPessoasByTermo(@RequestParam("t") @NotBlank String termo) {
         List<Pessoa> pessoasEncontradas = pessoaService.getByTermo(termo);
         List<PessoaResponse> responseList = pessoasEncontradas.stream()
@@ -55,7 +55,7 @@ public class PessoaController {
         return ResponseEntity.ok(pessoaService.getContagemPessoas());
     }
 
-    @PostMapping
+    @PostMapping("/pessoas")
     public ResponseEntity<PessoaResponse> savePessoa(@Valid @RequestBody PessoaRequest request) {
         Pessoa pessoa = pessoaService.savePessoa(PessoaUtils.toPessoa(request));
         URI locationUri = ServletUriComponentsBuilder
