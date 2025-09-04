@@ -82,6 +82,9 @@ public class PessoaUtils {
                 pessoaEntityStacks.add(stackEntity);
             }
         }
+        if(!pessoaEntityStacks.isEmpty()) {
+            pessoaEntity.setStacks(pessoaEntityStacks);
+        }
         return pessoaEntity;
     }
 }

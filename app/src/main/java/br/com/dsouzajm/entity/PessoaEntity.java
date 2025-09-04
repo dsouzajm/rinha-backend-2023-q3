@@ -16,6 +16,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "pessoas")
 public class PessoaEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false, unique = true)
@@ -30,7 +31,21 @@ public class PessoaEntity {
     @Column(name = "nascimento", nullable = false)
     private LocalDate nascimento;
 
-    // CORREÇÃO: O valor de 'mappedBy' deve ser "pessoa", o nome do campo na StackEntity
     @OneToMany(mappedBy = "pessoaEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<StackEntity> stacks = new ArrayList<>();
+
+    public void addStack(StackEntity stack) {
+        this.stacks.add(stack);
+        stack.setPessoaEntity(this);
+    }
+
+    public void setStacks(List<StackEntity> stacks) {
+        if(this.stacks != null) {
+            this.stacks.clear();
+        }
+        if (stacks != null) {
+            this.stacks = new ArrayList<>();
+            stacks.forEach(this::addStack);
+        }
+    }
 }

@@ -1,10 +1,9 @@
 package br.com.dsouzajm.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -16,15 +15,16 @@ import java.util.UUID;
 @Table(name = "stacks")
 public class StackEntity {
 
-    @Id // Garante que este campo é a chave primária
-    @GeneratedValue(strategy = GenerationType.AUTO) // Garante que o ID é gerado
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false, unique = true)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pessoa_id")
+    @JoinColumn(name = "pessoa_id", nullable = false)
+    @JsonBackReference // Evita loops infinitos na serialização JSON
     private PessoaEntity pessoaEntity;
 
-    @Column(name = "stack_item")
+    @Column(name = "stack_item", nullable = false)
     private String stackItem;
 }
