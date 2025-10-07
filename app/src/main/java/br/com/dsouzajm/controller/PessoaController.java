@@ -20,9 +20,8 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
-//@RequestMapping("/pessoas")
 public class PessoaController {
-    public final PessoaService pessoaService;
+    private final PessoaService pessoaService;
 
     @GetMapping("/pessoas/{id}")
     public ResponseEntity<PessoaResponse> getPessoa(@PathVariable UUID id) {
