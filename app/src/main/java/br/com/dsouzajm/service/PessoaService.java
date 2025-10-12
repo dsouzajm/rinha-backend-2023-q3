@@ -25,11 +25,13 @@ public class PessoaService {
         return PessoaUtils.toPessoa(pessoaSaved);
     }
 
+    @Transactional(readOnly = true)
     public Pessoa getPessoaById(UUID id) {
         PessoaEntity pessoaEntity = pessoaRepository.findById(id).orElse(null);
         return PessoaUtils.toPessoa(pessoaEntity);
     }
 
+    @Transactional(readOnly = true)
     public List<Pessoa> getByTermo(String termo) {
         List<PessoaEntity> pessoasEntity = pessoaRepository.findByTermoComLimite(termo);
         return pessoasEntity.stream()
@@ -37,6 +39,7 @@ public class PessoaService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public long getContagemPessoas() {
         return pessoaRepository.count();
     }
