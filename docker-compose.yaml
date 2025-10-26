@@ -21,7 +21,7 @@ services:
   app1:
     build:
       context: . # Path to the app's Dockerfile
-      dockerfile: app/Dockerfile # Specify the Dockerfile if it's not named 'Dockerfile'
+      dockerfile: Dockerfile # Specify the Dockerfile if it's not named 'Dockerfile'
     restart: on-failure
     expose:
       - "80" # Expose for internal communication within the Docker network
@@ -45,7 +45,7 @@ services:
   app2:
     build:
       context: . # Path to the app's Dockerfile
-      dockerfile: app/Dockerfile # Specify the Dockerfile if it's not named 'Dockerfile'
+      dockerfile: Dockerfile # Specify the Dockerfile if it's not named 'Dockerfile'
     restart: on-failure
     expose:
       - "80" # Expose for internal communication within the Docker network

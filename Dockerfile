@@ -14,7 +14,7 @@ RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline
 
 # Copia o código-fonte
-COPY app/src ./src
+COPY src ./src
 
 # Constrói o executável nativo ativando o perfil 'native'
 # O executável será criado em /app/target/

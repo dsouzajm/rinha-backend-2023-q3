@@ -15,7 +15,11 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>21</java.version>
-		<flyway.version>10.10.0</flyway.version>
+		<!--
+          Melhor Prática: Definir a classe principal numa propriedade.
+          O spring-boot-maven-plugin irá usar este valor automaticamente.
+        -->
+		<start-class>br.com.dsouzajm.RinhaBackend2023Q3Application</start-class>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -25,12 +29,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -45,17 +43,15 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.38</version>
+			<optional>true</optional> <!-- A versão é gerida pelo spring-boot-starter-parent -->
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>${flyway.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-database-postgresql</artifactId>
-			<version>${flyway.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -72,8 +68,13 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>br.com.dsouzajm.RinhaBackend2023Q3Application</mainClass>
+					<image>
+						<env>
+							<BP_NATIVE_IMAGE_BUILD_ARGUMENTS>-J-Xmx4g</BP_NATIVE_IMAGE_BUILD_ARGUMENTS>
+						</env>
+					</image>
 				</configuration>
+				<!-- A configuração <mainClass> foi removida daqui, pois agora usamos a propriedade <start-class> -->
 				<executions>
 					<execution>
 						<goals>
@@ -88,15 +89,34 @@
 	<profiles>
 		<profile>
 			<id>native</id>
-			<properties>
-				<repackage.classifier>exec</repackage.classifier>
-				<native-image.docker-build>false</native-image.docker-build>
-			</properties>
 			<build>
 				<plugins>
 					<plugin>
 						<groupId>org.graalvm.buildtools</groupId>
 						<artifactId>native-maven-plugin</artifactId>
+						<!-- A versão é gerida pelo spring-boot-starter-parent -->
+						<executions>
+							<execution>
+								<id>build-native</id>
+								<goals>
+									<goal>compile-no-fork</goal>
+								</goals>
+								<phase>package</phase>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- A execução do 'process-aot' é adicionada ao plugin do Spring Boot quando o perfil 'native' está ativo -->
+					<plugin>
+						<groupId>org.springframework.boot</groupId>
+						<artifactId>spring-boot-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>process-aot</id>
+								<goals>
+									<goal>process-aot</goal>
+								</goals>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>
