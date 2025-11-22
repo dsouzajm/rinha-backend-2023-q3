@@ -41,14 +41,6 @@ public class PessoaController {
         return ResponseEntity.ok(responseList);
     }
 
-    /*@GetMapping
-    public ResponseEntity<Page<PessoaResponse>> getPessoasByTermo(
-            @RequestParam(name = "t") @NotBlank String termo) {
-        Page<Pessoa> paginaDePessoas = pessoaService.getByTermo(termo);
-        Page<PessoaResponse> paginaDeResponse = paginaDePessoas.map(PessoaUtils::toPessoaResponse);
-        return ResponseEntity.ok(paginaDeResponse);
-    }*/
-
     @GetMapping("/contagem-pessoas")
     public ResponseEntity<Long> getContagem(){
         return ResponseEntity.ok(pessoaService.getContagemPessoas());
