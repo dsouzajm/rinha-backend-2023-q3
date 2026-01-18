@@ -2,7 +2,6 @@ package br.com.dsouzajm.repository;
 
 import br.com.dsouzajm.domain.Pessoa;
 import br.com.dsouzajm.domain.Stack;
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,10 +12,13 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Repository
-@RequiredArgsConstructor
 public class PessoaRepository {
 
     private final JdbcClient jdbcClient;
+
+    public PessoaRepository(JdbcClient jdbcClient) {
+        this.jdbcClient = jdbcClient;
+    }
 
     @Transactional
     public Pessoa save(Pessoa pessoa) {

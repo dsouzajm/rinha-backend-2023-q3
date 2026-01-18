@@ -4,7 +4,6 @@ import br.com.dsouzajm.domain.Pessoa;
 import br.com.dsouzajm.domain.Stack;
 import br.com.dsouzajm.repository.PessoaProjection;
 import br.com.dsouzajm.repository.PessoaRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,10 +12,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 @Service
 public class PessoaService {
     public final PessoaRepository pessoaRepository;
+
+    public PessoaService(PessoaRepository pessoaRepository) {
+        this.pessoaRepository = pessoaRepository;
+    }
 
     @Transactional
     public Pessoa savePessoa(Pessoa pessoa) {
