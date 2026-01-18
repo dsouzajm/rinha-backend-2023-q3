@@ -1,14 +1,14 @@
 package br.com.dsouzajm.service;
 
 import br.com.dsouzajm.domain.Pessoa;
-import br.com.dsouzajm.entity.PessoaEntity;
-import br.com.dsouzajm.entity.StackEntity;
+import br.com.dsouzajm.domain.Stack;
+import br.com.dsouzajm.repository.PessoaProjection;
 import br.com.dsouzajm.repository.PessoaRepository;
-import br.com.dsouzajm.utils.PessoaUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,22 +20,33 @@ public class PessoaService {
 
     @Transactional
     public Pessoa savePessoa(Pessoa pessoa) {
-        PessoaEntity pessoaEntity = PessoaUtils.toPessoaEntity(pessoa);
-        PessoaEntity pessoaSaved = pessoaRepository.save(pessoaEntity);
-        return PessoaUtils.toPessoa(pessoaSaved);
+        return pessoaRepository.save(pessoa);
     }
 
     @Transactional(readOnly = true)
     public Pessoa getPessoaById(UUID id) {
-        PessoaEntity pessoaEntity = pessoaRepository.findById(id).orElse(null);
-        return PessoaUtils.toPessoa(pessoaEntity);
+        return pessoaRepository.findById(id).orElse(null);
     }
 
     @Transactional(readOnly = true)
     public List<Pessoa> getByTermo(String termo) {
-        List<PessoaEntity> pessoasEntity = pessoaRepository.findByTermoComLimite(termo);
-        return pessoasEntity.stream()
-                .map(PessoaUtils::toPessoa)
+        List<PessoaProjection> pessoasProjection = pessoaRepository.findByTermoComLimite(termo);
+        return pessoasProjection.stream()
+                .map(proj -> {
+                    List<Stack> stacks = proj.stacks() != null 
+                        ? proj.stacks().stream()
+                            .map(s -> new Stack(null, s))
+                            .collect(Collectors.toList())
+                        : Collections.emptyList();
+
+                    return new Pessoa(
+                        proj.id(),
+                        proj.apelido(),
+                        proj.nome(),
+                        proj.nascimento(),
+                        stacks
+                    );
+                })
                 .collect(Collectors.toList());
     }
 

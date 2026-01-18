@@ -1,40 +1,128 @@
 package br.com.dsouzajm.repository;
 
-import br.com.dsouzajm.entity.PessoaEntity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.data.domain.Pageable;
+import br.com.dsouzajm.domain.Pessoa;
+import br.com.dsouzajm.domain.Stack;
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.*;
 
-public interface PessoaRepository extends JpaRepository<PessoaEntity, UUID> {
-    @Query("SELECT DISTINCT p FROM PessoaEntity p LEFT JOIN p.stacks s WHERE " +
-            "LOWER(p.nome) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
-            "LOWER(p.apelido) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
-            "LOWER(s.stackItem) LIKE LOWER(CONCAT('%', :termo, '%'))")
-    List<PessoaEntity> findByTermo(@Param("termo") String termo, Pageable pageable);
+@Repository
+@RequiredArgsConstructor
+public class PessoaRepository {
 
-    /*@Query(
-            value = "SELECT DISTINCT p.* FROM pessoas p " +
-                    "LEFT JOIN stacks s ON p.id = s.pessoa_id " +
-                    "WHERE p.nome ILIKE CONCAT('%', :termo, '%') " +
-                    "OR p.apelido ILIKE CONCAT('%', :termo, '%') " +
-                    "OR s.stack_item ILIKE CONCAT('%', :termo, '%') " +
-                    "LIMIT 50",
-            nativeQuery = true
-    )
-    List<PessoaEntity> findByTermoComLimite(@Param("termo") String termo);*/
+    private final JdbcClient jdbcClient;
 
-    @Query(
-            value = "SELECT * FROM pessoas WHERE id IN (" +
-                    "  SELECT id FROM pessoas WHERE nome ILIKE CONCAT('%', :termo, '%') OR apelido ILIKE CONCAT('%', :termo, '%')" +
-                    "  UNION" +
-                    "  SELECT pessoa_id FROM stacks WHERE stack_item ILIKE CONCAT('%', :termo, '%')" +
-                    ") LIMIT 50",
-            nativeQuery = true
-    )
-    List<PessoaEntity> findByTermoComLimite(@Param("termo") String termo);
+    @Transactional
+    public Pessoa save(Pessoa pessoa) {
+        if (pessoa.getId() == null) {
+            pessoa.setId(UUID.randomUUID());
+        }
+
+        String sqlPessoa = "INSERT INTO pessoas (id, apelido, nome, nascimento) VALUES (:id, :apelido, :nome, :nascimento)";
+        jdbcClient.sql(sqlPessoa)
+                .param("id", pessoa.getId())
+                .param("apelido", pessoa.getApelido())
+                .param("nome", pessoa.getNome())
+                .param("nascimento", pessoa.getNascimento())
+                .update();
+
+        if (pessoa.getStacks() != null && !pessoa.getStacks().isEmpty()) {
+            String sqlStack = "INSERT INTO stacks (id, pessoa_id, stack_item) VALUES (:id, :pessoaId, :stackItem)";
+            for (Stack stack : pessoa.getStacks()) {
+                jdbcClient.sql(sqlStack)
+                        .param("id", UUID.randomUUID())
+                        .param("pessoaId", pessoa.getId())
+                        .param("stackItem", stack.getStack())
+                        .update();
+            }
+        }
+
+        return pessoa;
+    }
+
+    public Optional<Pessoa> findById(UUID id) {
+        String sql = """
+            SELECT p.id, p.apelido, p.nome, p.nascimento, s.stack_item
+            FROM pessoas p
+            LEFT JOIN stacks s ON s.pessoa_id = p.id
+            WHERE p.id = :id
+        """;
+
+        return Optional.ofNullable(
+            jdbcClient.sql(sql)
+                .param("id", id)
+                .query(this::extractPessoa)
+        );
+    }
+
+    public List<PessoaProjection> findByTermoComLimite(String termo) {
+        String termoLike = "%" + termo + "%";
+        String sql = """
+            SELECT p.id, p.apelido, p.nome, p.nascimento, 
+                   (SELECT array_agg(s.stack_item) FROM stacks s WHERE s.pessoa_id = p.id) as stacks
+            FROM pessoas p
+            WHERE p.id IN (
+                SELECT id FROM pessoas WHERE nome ILIKE :termo OR apelido ILIKE :termo
+                UNION
+                SELECT pessoa_id FROM stacks WHERE stack_item ILIKE :termo
+            )
+            LIMIT 50
+        """;
+
+        return jdbcClient.sql(sql)
+                .param("termo", termoLike)
+                .query((rs, rowNum) -> new PessoaProjection(
+                        UUID.fromString(rs.getString("id")),
+                        rs.getString("apelido"),
+                        rs.getString("nome"),
+                        rs.getObject("nascimento", LocalDate.class),
+                        mapStacks(rs.getArray("stacks"))
+                ))
+                .list();
+    }
+
+    public long count() {
+        return jdbcClient.sql("SELECT count(*) FROM pessoas")
+                .query(Long.class)
+                .single();
+    }
+
+    private Pessoa extractPessoa(ResultSet rs) throws SQLException {
+        Pessoa pessoa = null;
+        List<Stack> stacks = new ArrayList<>();
+
+        while (rs.next()) {
+            if (pessoa == null) {
+                String idStr = rs.getString("id");
+                UUID id = idStr != null ? UUID.fromString(idStr) : null;
+                
+                String apelido = rs.getString("apelido");
+                String nome = rs.getString("nome");
+                LocalDate nascimento = rs.getObject("nascimento", LocalDate.class);
+                
+                // Passando a referência da lista 'stacks' que será populada
+                pessoa = new Pessoa(id, apelido, nome, nascimento, stacks);
+            }
+            String stackItem = rs.getString("stack_item");
+            if (stackItem != null) {
+                stacks.add(new Stack(null, stackItem));
+            }
+        }
+
+        return pessoa;
+    }
+    
+    private List<String> mapStacks(java.sql.Array sqlArray) throws SQLException {
+        if (sqlArray == null) {
+            return Collections.emptyList();
+        }
+        String[] array = (String[]) sqlArray.getArray();
+        return Arrays.asList(array);
+    }
 }
