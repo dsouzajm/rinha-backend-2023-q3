@@ -12,60 +12,64 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./postgres/script.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "5432:5432" # Expose DB port to the host for direct access with a DB client
+      - "5432:5432"
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pessoa_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.40'
+          memory: '1GB'
 
-  # Java Application Service
+  # Java Application Service 1
   app1:
     build:
-      context: . # Path to the app's Dockerfile
-      dockerfile: Dockerfile # Specify the Dockerfile if it's not named 'Dockerfile'
+      context: .
+      dockerfile: Dockerfile
     restart: on-failure
     expose:
-      - "80" # Expose for internal communication within the Docker network
-    ports:
-      - "5005:5005"
+      - "80"
     depends_on:
-      - pessoa-db # Wait for the database to be ready
+      pessoa-db:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pessoa-db:5432/pessoa_db
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      _JAVA_OPTIONS: >
-        -Xdebug 
-        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      # Debug flags removidas pois quebram a imagem nativa
     deploy:
       resources:
         limits:
-          cpus: '0.75'
-          memory: '1.5GB'
+          cpus: '0.45'
+          memory: '700M'
 
+  # Java Application Service 2
   app2:
     build:
-      context: . # Path to the app's Dockerfile
-      dockerfile: Dockerfile # Specify the Dockerfile if it's not named 'Dockerfile'
+      context: .
+      dockerfile: Dockerfile
     restart: on-failure
     expose:
-      - "80" # Expose for internal communication within the Docker network
-    ports:
-      - "5006:5006"
+      - "80"
     depends_on:
-      - pessoa-db # Wait for the database to be ready
+      pessoa-db:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pessoa-db:5432/pessoa_db
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      _JAVA_OPTIONS: >
-        -Xdebug 
-        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006
+      # Debug flags removidas pois quebram a imagem nativa
     deploy:
       resources:
         limits:
-          cpus: '0.75'
-          memory: '1.5GB'
-
+          cpus: '0.45'
+          memory: '700M'
 
   # Nginx Reverse Proxy Service
   nginx:
@@ -73,16 +77,19 @@ services:
       context: ./nginx
     restart: always
     ports:
-      - "9999:9999" # Main entry point for all traffic
+      - "9999:9999"
     depends_on:
       - app1
       - app2
+    deploy:
+      resources:
+        limits:
+          cpus: '0.20'
+          memory: '600M'
 
-# Volumes to persist database data
 volumes:
   postgres_data:
 
 networks:
   app_network:
     driver: bridge
-
