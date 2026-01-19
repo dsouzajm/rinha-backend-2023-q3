@@ -56,11 +56,9 @@ public class PessoaRepository {
             WHERE p.id = :id
         """;
 
-        return Optional.ofNullable(
-            jdbcClient.sql(sql)
+        return jdbcClient.sql(sql)
                 .param("id", id)
-                .query(this::extractPessoa)
-        );
+                .query(this::extractPessoa);
     }
 
     public List<PessoaProjection> findByTermoComLimite(String termo) {
@@ -95,7 +93,7 @@ public class PessoaRepository {
                 .single();
     }
 
-    private Pessoa extractPessoa(ResultSet rs) throws SQLException {
+    private Optional<Pessoa> extractPessoa(ResultSet rs) throws SQLException {
         Pessoa pessoa = null;
         List<Stack> stacks = new ArrayList<>();
 
@@ -108,7 +106,6 @@ public class PessoaRepository {
                 String nome = rs.getString("nome");
                 LocalDate nascimento = rs.getObject("nascimento", LocalDate.class);
                 
-                // Passando a referência da lista 'stacks' que será populada
                 pessoa = new Pessoa(id, apelido, nome, nascimento, stacks);
             }
             String stackItem = rs.getString("stack_item");
@@ -117,7 +114,7 @@ public class PessoaRepository {
             }
         }
 
-        return pessoa;
+        return Optional.ofNullable(pessoa);
     }
     
     private List<String> mapStacks(java.sql.Array sqlArray) throws SQLException {

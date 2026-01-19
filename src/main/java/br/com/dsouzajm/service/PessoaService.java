@@ -27,7 +27,7 @@ public class PessoaService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "pessoas", key = "#id")
+    @Cacheable(value = "pessoas", key = "#id", unless = "#result == null")
     public Pessoa getPessoaById(UUID id) {
         return pessoaRepository.findById(id).orElse(null);
     }
