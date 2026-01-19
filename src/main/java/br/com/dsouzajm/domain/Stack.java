@@ -1,9 +1,11 @@
 package br.com.dsouzajm.domain;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Stack {
+public class Stack implements Serializable {
+    private static final long serialVersionUID = 1L;
     private UUID id;
     private String stack;
 

@@ -1,0 +1,23 @@
+[
+  {
+    "name": "br.com.dsouzajm.domain.Pessoa"
+  },
+  {
+    "name": "br.com.dsouzajm.domain.Stack"
+  },
+  {
+    "name": "java.util.ArrayList"
+  },
+  {
+    "name": "java.lang.String"
+  },
+  {
+    "name": "java.lang.Number"
+  },
+  {
+    "name": "java.time.LocalDate"
+  },
+  {
+    "name": "java.util.UUID"
+  }
+]

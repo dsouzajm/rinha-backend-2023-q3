@@ -1,11 +1,13 @@
 package br.com.dsouzajm.domain;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Pessoa {
+public class Pessoa implements Serializable {
+    private static final long serialVersionUID = 1L;
     private UUID id;
     private String apelido;
     private String nome;

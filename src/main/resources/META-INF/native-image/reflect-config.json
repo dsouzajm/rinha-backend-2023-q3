@@ -1,6 +1,20 @@
 [
   {
-    "name": "[Ljava.util.UUID;",
-    "unsafeAllocated": true
+    "name": "br.com.dsouzajm.domain.Pessoa",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "br.com.dsouzajm.domain.Stack",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "allPublicFields": true
   }
 ]

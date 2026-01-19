@@ -21,11 +21,24 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '1.0'
+#          memory: '1GB'
+
+  # Redis Cache Service
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: always
     deploy:
       resources:
         limits:
-          cpus: '0.40'
-          memory: '1GB'
+          cpus: '0.06'
+          memory: '0.5GB'
 
   # Java Application Service 1
   app1:
@@ -38,15 +51,18 @@ services:
     depends_on:
       pessoa-db:
         condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pessoa-db:5432/pessoa_db
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      # Debug flags removidas pois quebram a imagem nativa
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     deploy:
       resources:
         limits:
-          cpus: '0.45'
+          cpus: '0.30'
           memory: '700M'
 
   # Java Application Service 2
@@ -60,15 +76,18 @@ services:
     depends_on:
       pessoa-db:
         condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pessoa-db:5432/pessoa_db
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      # Debug flags removidas pois quebram a imagem nativa
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     deploy:
       resources:
         limits:
-          cpus: '0.45'
+          cpus: '0.30'
           memory: '700M'
 
   # Nginx Reverse Proxy Service

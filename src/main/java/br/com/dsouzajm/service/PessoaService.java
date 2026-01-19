@@ -4,6 +4,7 @@ import br.com.dsouzajm.domain.Pessoa;
 import br.com.dsouzajm.domain.Stack;
 import br.com.dsouzajm.repository.PessoaProjection;
 import br.com.dsouzajm.repository.PessoaRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class PessoaService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "pessoas", key = "#id")
     public Pessoa getPessoaById(UUID id) {
         return pessoaRepository.findById(id).orElse(null);
     }
