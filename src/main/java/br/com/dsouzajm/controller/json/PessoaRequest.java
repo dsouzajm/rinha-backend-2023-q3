@@ -11,16 +11,16 @@ import java.util.List;
 public record PessoaRequest(
     @JsonDeserialize(using = StrictStringDeserializer.class)
     @NotBlank
-    @Size
+    @Size(max = 255)
     String apelido,
 
     @JsonDeserialize(using = StrictStringDeserializer.class)
     @NotBlank
-    @Size
+    @Size(max = 255)
     String nome,
     LocalDate nascimento,
 
     @JsonDeserialize(contentUsing = StrictStringDeserializer.class)
-    List<String> stack
+    List<@Size(max = 255) String> stack
 ) {
 }
