@@ -40,7 +40,7 @@ public class PessoaRepository {
             LIMIT 50
             """;
 
-    private static final String COUNT_PESSOAS = "SELECT count(*) FROM pessoas";
+    private static final String COUNT_PESSOAS = "SELECT count(id) FROM pessoas";
 
     public PessoaRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;

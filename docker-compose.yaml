@@ -6,6 +6,10 @@ services:
   pessoa-db:
     image: postgres:17-alpine
     container_name: pessoa_db
+    # Tuning agressivo para performance de escrita:
+    # - synchronous_commit=off: Não espera o disco confirmar (risco de perda mínima em crash, mas muito mais rápido)
+    # - log_min_messages=panic: Desabilita logs para economizar I/O
+    command: postgres -c 'synchronous_commit=off' -c 'log_min_messages=panic' -c 'log_min_error_statement=panic'
     environment:
       POSTGRES_DB: pessoa_db
       POSTGRES_USER: ${POSTGRES_USER}
@@ -24,8 +28,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.7'
-          memory: '900MB'
+          cpus: '0.9'
+          memory: '700MB'
 
   # Redis Cache Service
   redis:
@@ -38,7 +42,7 @@ services:
       resources:
         limits:
           cpus: '0.1'
-          memory: '128MB'
+          memory: '400MB'
 
   # Java Application Service 1
   app1:
@@ -62,8 +66,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.3'
-          memory: '650MB'
+          cpus: '0.2'
+          memory: '500MB'
 
   # Java Application Service 2
   app2:
@@ -87,8 +91,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.3'
-          memory: '650MB'
+          cpus: '0.2'
+          memory: '500MB'
 
   # Nginx Reverse Proxy Service
   nginx:
@@ -104,7 +108,7 @@ services:
       resources:
         limits:
           cpus: '0.1'
-          memory: '476MB'
+          memory: '500MB'
 
 volumes:
   postgres_data:

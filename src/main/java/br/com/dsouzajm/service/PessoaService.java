@@ -33,6 +33,7 @@ public class PessoaService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "busca_pessoas", key = "#termo")
     public List<Pessoa> getByTermo(String termo) {
         List<PessoaProjection> pessoasProjection = pessoaRepository.findByTermoComLimite(termo);
         return pessoasProjection.stream()
@@ -42,7 +43,6 @@ public class PessoaService {
                             .map(s -> new Stack(null, s))
                             .collect(Collectors.toList())
                         : Collections.emptyList();
-
                     return new Pessoa(
                         proj.id(),
                         proj.apelido(),
