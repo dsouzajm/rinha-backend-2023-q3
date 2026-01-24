@@ -14,13 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RegisterReflectionForBinding({Pessoa.class, Stack.class})
 public class RinhaBackend2023Q3Application {
-
-	@RequestMapping("/")
-	public String home() {
-		return "Hello Docker World1";
-	}
-
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 		SpringApplication.run(RinhaBackend2023Q3Application.class, args);
 	}
 }
