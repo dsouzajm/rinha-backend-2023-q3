@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
 @RestController
 public class PessoaController {
     private final PessoaService pessoaService;
+    private static final String LOCATION = "/pessoas/";
 
     public PessoaController(PessoaService pessoaService) {
         this.pessoaService = pessoaService;
@@ -50,11 +50,8 @@ public class PessoaController {
     @PostMapping("/pessoas")
     public ResponseEntity<PessoaResponse> savePessoa(@Valid @RequestBody PessoaRequest request) {
         Pessoa pessoa = pessoaService.savePessoa(PessoaUtils.toPessoa(request));
-        URI locationUri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(pessoa.getId())
-            .toUri();
-        return ResponseEntity.created(locationUri).body(PessoaUtils.toPessoaResponse(pessoa));
+        // Usando StringBuilder para concatenação eficiente
+        return ResponseEntity.created(URI.create(new StringBuilder(LOCATION).append(pessoa.getId()).toString()))
+                .body(PessoaUtils.toPessoaResponse(pessoa));
     }
 }

@@ -25,15 +25,15 @@ public class RedisConfig {
         // Ativa a tipagem polimórfica para que o Jackson saiba qual classe instanciar
         // ao ler do Redis, evitando o erro de LinkedHashMap cannot be cast to Pessoa
         objectMapper.activateDefaultTyping(
-                BasicPolymorphicTypeValidator.builder()
-                        .allowIfBaseType(Object.class)
-                        .build(),
-                ObjectMapper.DefaultTyping.NON_FINAL
+            BasicPolymorphicTypeValidator.builder()
+                    .allowIfBaseType(Object.class)
+                .build(),
+            ObjectMapper.DefaultTyping.NON_FINAL
         );
 
         return RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(10))
-                .disableCachingNullValues()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
+            .entryTtl(Duration.ofMinutes(10))
+            .disableCachingNullValues()
+            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
     }
 }

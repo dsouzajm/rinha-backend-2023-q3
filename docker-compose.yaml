@@ -21,11 +21,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: '1.0'
-#          memory: '1GB'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.7'
+          memory: '900MB'
 
   # Redis Cache Service
   redis:
@@ -37,8 +37,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.06'
-          memory: '0.5GB'
+          cpus: '0.1'
+          memory: '128MB'
 
   # Java Application Service 1
   app1:
@@ -62,8 +62,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.30'
-          memory: '700M'
+          cpus: '0.3'
+          memory: '650MB'
 
   # Java Application Service 2
   app2:
@@ -87,8 +87,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.30'
-          memory: '700M'
+          cpus: '0.3'
+          memory: '650MB'
 
   # Nginx Reverse Proxy Service
   nginx:
@@ -103,8 +103,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.20'
-          memory: '600M'
+          cpus: '0.1'
+          memory: '476MB'
 
 volumes:
   postgres_data:

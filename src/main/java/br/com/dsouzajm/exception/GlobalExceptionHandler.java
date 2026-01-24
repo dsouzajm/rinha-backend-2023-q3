@@ -1,5 +1,6 @@
 package br.com.dsouzajm.exception;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -24,5 +25,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         // Retorna o status 400 Bad Request
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    // Handler para apelido duplicado
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<Object> handleDuplicateKeyException(DuplicateKeyException ex) {
+        // Retorna o status 422 Unprocessable Entity conforme regra da Rinha
+        return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }

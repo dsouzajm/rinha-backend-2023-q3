@@ -15,6 +15,32 @@ import java.util.*;
 public class PessoaRepository {
 
     private final JdbcClient jdbcClient;
+    
+    private static final String SAVE_INSERT_PESSOA = "INSERT INTO pessoas (id, apelido, nome, nascimento) VALUES (:id, :apelido, :nome, :nascimento)";
+    private static final String SAVE_INSERT_STACK = "INSERT INTO stacks (id, pessoa_id, stack_item) VALUES (:id, :pessoaId, :stackItem)";
+    
+    private static final String FIND_BY_ID = """
+            SELECT p.id, p.apelido, p.nome, p.nascimento, s.stack_item
+            FROM pessoas p
+            LEFT JOIN stacks s ON s.pessoa_id = p.id
+            WHERE p.id = :id
+            """;
+
+    // Otimização: UNION ALL é mais rápido que UNION pois não faz distinct/sort.
+    // O filtro IN (...) já garante que não haverá IDs duplicados no resultado final.
+    private static final String FIND_BY_TERMO = """
+            SELECT p.id, p.apelido, p.nome, p.nascimento, 
+                   (SELECT array_agg(s.stack_item) FROM stacks s WHERE s.pessoa_id = p.id) as stacks
+            FROM pessoas p
+            WHERE p.id IN (
+                SELECT id FROM pessoas WHERE nome ILIKE :termo OR apelido ILIKE :termo
+                UNION ALL
+                SELECT pessoa_id FROM stacks WHERE stack_item ILIKE :termo
+            )
+            LIMIT 50
+            """;
+
+    private static final String COUNT_PESSOAS = "SELECT count(*) FROM pessoas";
 
     public PessoaRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
@@ -26,8 +52,7 @@ public class PessoaRepository {
             pessoa.setId(UUID.randomUUID());
         }
 
-        String sqlPessoa = "INSERT INTO pessoas (id, apelido, nome, nascimento) VALUES (:id, :apelido, :nome, :nascimento)";
-        jdbcClient.sql(sqlPessoa)
+        jdbcClient.sql(SAVE_INSERT_PESSOA)
                 .param("id", pessoa.getId())
                 .param("apelido", pessoa.getApelido())
                 .param("nome", pessoa.getNome())
@@ -35,9 +60,8 @@ public class PessoaRepository {
                 .update();
 
         if (pessoa.getStacks() != null && !pessoa.getStacks().isEmpty()) {
-            String sqlStack = "INSERT INTO stacks (id, pessoa_id, stack_item) VALUES (:id, :pessoaId, :stackItem)";
             for (Stack stack : pessoa.getStacks()) {
-                jdbcClient.sql(sqlStack)
+                jdbcClient.sql(SAVE_INSERT_STACK)
                         .param("id", UUID.randomUUID())
                         .param("pessoaId", pessoa.getId())
                         .param("stackItem", stack.getStack())
@@ -49,33 +73,15 @@ public class PessoaRepository {
     }
 
     public Optional<Pessoa> findById(UUID id) {
-        String sql = """
-            SELECT p.id, p.apelido, p.nome, p.nascimento, s.stack_item
-            FROM pessoas p
-            LEFT JOIN stacks s ON s.pessoa_id = p.id
-            WHERE p.id = :id
-        """;
-
-        return jdbcClient.sql(sql)
+        return jdbcClient.sql(FIND_BY_ID)
                 .param("id", id)
                 .query(this::extractPessoa);
     }
 
     public List<PessoaProjection> findByTermoComLimite(String termo) {
-        String termoLike = "%" + termo + "%";
-        String sql = """
-            SELECT p.id, p.apelido, p.nome, p.nascimento, 
-                   (SELECT array_agg(s.stack_item) FROM stacks s WHERE s.pessoa_id = p.id) as stacks
-            FROM pessoas p
-            WHERE p.id IN (
-                SELECT id FROM pessoas WHERE nome ILIKE :termo OR apelido ILIKE :termo
-                UNION
-                SELECT pessoa_id FROM stacks WHERE stack_item ILIKE :termo
-            )
-            LIMIT 50
-        """;
-
-        return jdbcClient.sql(sql)
+        String termoLike = new StringBuilder("%").append(termo).append("%").toString();
+        
+        return jdbcClient.sql(FIND_BY_TERMO)
                 .param("termo", termoLike)
                 .query((rs, rowNum) -> new PessoaProjection(
                         UUID.fromString(rs.getString("id")),
@@ -88,7 +94,7 @@ public class PessoaRepository {
     }
 
     public long count() {
-        return jdbcClient.sql("SELECT count(*) FROM pessoas")
+        return jdbcClient.sql(COUNT_PESSOAS)
                 .query(Long.class)
                 .single();
     }
