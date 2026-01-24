@@ -1,34 +1,46 @@
-# Stage 1: Build the native executable using GraalVM
-FROM ghcr.io/graalvm/native-image-community:21 AS build
+# Stage 1: Build the native executable using GraalVM for Java 25
+FROM ghcr.io/graalvm/native-image-community:25 AS build
 WORKDIR /app
 
-# Copia os arquivos de build para aproveitar o cache de dependências do Docker
-COPY pom.xml . 
+# Copy build files to leverage Docker cache
+COPY pom.xml .
 COPY .mvn/ .mvn
 COPY mvnw .
 
-# Torna o wrapper executável
+# Make wrapper executable
 RUN chmod +x mvnw
 
-# Baixa as dependências (será cacheado se o pom.xml não mudar)
+# Download dependencies
 RUN ./mvnw dependency:go-offline
 
-# Copia o código-fonte
+# Copy source code
 COPY src ./src
 
-# Constrói o executável nativo ativando o perfil 'native'
-# O executável será criado em /app/target/
-RUN ./mvnw -Pnative -DskipTests native:compile
+# --- COMANDO DE LIMPEZA NUCLEAR ---
+# Procura e deleta qualquer arquivo native-image.properties dentro de src/
+# Isso remove a configuração antiga que está causando o erro, esteja ela onde estiver.
+RUN find src -name "native-image.properties" -type f -delete
+# ----------------------------------
 
-# Etapa intermediária para obter a biblioteca zlib para a arquitetura arm64
+# Build native executable
+# Using flags to handle potential compatibility issues with Undertow/Wildfly on newer Java versions
+RUN ./mvnw -Pnative native:compile
+
+# Intermediate stage for zlib (ARM64 specific)
 FROM debian:bookworm-slim as zlib-provider
 
-# Stage 2: Create the final, minimal image
+# Stage 2: Final minimal image
 FROM gcr.io/distroless/base-debian12
 WORKDIR /app
 
-# Copia a biblioteca zlib da etapa intermediária para o local correto (aarch64) na imagem final
+# Copy zlib for ARM64 support
 COPY --from=zlib-provider /lib/aarch64-linux-gnu/libz.so.1 /lib/aarch64-linux-gnu/
+
+# Copy the compiled binary
 COPY --from=build /app/target/rinha-backend-2023-q3 .
+
 EXPOSE 80
+ENV SERVER_PORT=80
+ENV SERVER_ADDRESS=0.0.0.0
+
 ENTRYPOINT ["./rinha-backend-2023-q3"]
