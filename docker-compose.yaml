@@ -28,8 +28,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.9'
-          memory: '700MB'
+          cpus: '1.01'
+          memory: '900MB'
 
   # Redis Cache Service
   redis:
@@ -41,7 +41,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
+          cpus: '0.01'
           memory: '400MB'
 
   # Java Application Service 1
@@ -67,7 +67,7 @@ services:
       resources:
         limits:
           cpus: '0.2'
-          memory: '500MB'
+          memory: '600MB'
 
   # Java Application Service 2
   app2:
@@ -92,7 +92,7 @@ services:
       resources:
         limits:
           cpus: '0.2'
-          memory: '500MB'
+          memory: '600MB'
 
   # Nginx Reverse Proxy Service
   nginx:
@@ -107,7 +107,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
+          cpus: '0.08'
           memory: '500MB'
 
 volumes:

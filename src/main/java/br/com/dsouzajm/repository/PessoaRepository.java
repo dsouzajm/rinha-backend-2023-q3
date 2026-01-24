@@ -10,33 +10,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class PessoaRepository {
 
     private final JdbcClient jdbcClient;
     
-    private static final String SAVE_INSERT_PESSOA = "INSERT INTO pessoas (id, apelido, nome, nascimento) VALUES (:id, :apelido, :nome, :nascimento)";
-    private static final String SAVE_INSERT_STACK = "INSERT INTO stacks (id, pessoa_id, stack_item) VALUES (:id, :pessoaId, :stackItem)";
+    // Agora inserimos tudo em uma única tabela
+    private static final String SAVE_INSERT_PESSOA = "INSERT INTO pessoas (id, apelido, nome, nascimento, stack) VALUES (:id, :apelido, :nome, :nascimento, :stack)";
     
     private static final String FIND_BY_ID = """
-            SELECT p.id, p.apelido, p.nome, p.nascimento, s.stack_item
-            FROM pessoas p
-            LEFT JOIN stacks s ON s.pessoa_id = p.id
-            WHERE p.id = :id
+            SELECT id, apelido, nome, nascimento, stack
+            FROM pessoas
+            WHERE id = :id
             """;
 
-    // Otimização: UNION ALL é mais rápido que UNION pois não faz distinct/sort.
-    // O filtro IN (...) já garante que não haverá IDs duplicados no resultado final.
+    // Busca ultra-rápida usando a coluna gerada e índice GIN
     private static final String FIND_BY_TERMO = """
-            SELECT p.id, p.apelido, p.nome, p.nascimento, 
-                   (SELECT array_agg(s.stack_item) FROM stacks s WHERE s.pessoa_id = p.id) as stacks
-            FROM pessoas p
-            WHERE p.id IN (
-                SELECT id FROM pessoas WHERE nome ILIKE :termo OR apelido ILIKE :termo
-                UNION ALL
-                SELECT pessoa_id FROM stacks WHERE stack_item ILIKE :termo
-            )
+            SELECT id, apelido, nome, nascimento, stack
+            FROM pessoas
+            WHERE busca ILIKE :termo
             LIMIT 50
             """;
 
@@ -52,22 +46,21 @@ public class PessoaRepository {
             pessoa.setId(UUID.randomUUID());
         }
 
+        String stackString = null;
+        if (pessoa.getStacks() != null && !pessoa.getStacks().isEmpty()) {
+            // Concatena stacks com espaço para busca e armazenamento simples
+            stackString = pessoa.getStacks().stream()
+                    .map(Stack::getStack)
+                    .collect(Collectors.joining(" "));
+        }
+
         jdbcClient.sql(SAVE_INSERT_PESSOA)
                 .param("id", pessoa.getId())
                 .param("apelido", pessoa.getApelido())
                 .param("nome", pessoa.getNome())
                 .param("nascimento", pessoa.getNascimento())
+                .param("stack", stackString)
                 .update();
-
-        if (pessoa.getStacks() != null && !pessoa.getStacks().isEmpty()) {
-            for (Stack stack : pessoa.getStacks()) {
-                jdbcClient.sql(SAVE_INSERT_STACK)
-                        .param("id", UUID.randomUUID())
-                        .param("pessoaId", pessoa.getId())
-                        .param("stackItem", stack.getStack())
-                        .update();
-            }
-        }
 
         return pessoa;
     }
@@ -88,7 +81,7 @@ public class PessoaRepository {
                         rs.getString("apelido"),
                         rs.getString("nome"),
                         rs.getObject("nascimento", LocalDate.class),
-                        mapStacks(rs.getArray("stacks"))
+                        stringToStackList(rs.getString("stack"))
                 ))
                 .list();
     }
@@ -100,34 +93,29 @@ public class PessoaRepository {
     }
 
     private Optional<Pessoa> extractPessoa(ResultSet rs) throws SQLException {
-        Pessoa pessoa = null;
-        List<Stack> stacks = new ArrayList<>();
-
-        while (rs.next()) {
-            if (pessoa == null) {
-                String idStr = rs.getString("id");
-                UUID id = idStr != null ? UUID.fromString(idStr) : null;
-                
-                String apelido = rs.getString("apelido");
-                String nome = rs.getString("nome");
-                LocalDate nascimento = rs.getObject("nascimento", LocalDate.class);
-                
-                pessoa = new Pessoa(id, apelido, nome, nascimento, stacks);
+        if (rs.next()) {
+            UUID id = UUID.fromString(rs.getString("id"));
+            String apelido = rs.getString("apelido");
+            String nome = rs.getString("nome");
+            LocalDate nascimento = rs.getObject("nascimento", LocalDate.class);
+            String stackStr = rs.getString("stack");
+            
+            List<Stack> stacks = new ArrayList<>();
+            if (stackStr != null && !stackStr.isEmpty()) {
+                for (String s : stackStr.split(" ")) {
+                    stacks.add(new Stack(null, s));
+                }
             }
-            String stackItem = rs.getString("stack_item");
-            if (stackItem != null) {
-                stacks.add(new Stack(null, stackItem));
-            }
+            
+            return Optional.of(new Pessoa(id, apelido, nome, nascimento, stacks));
         }
-
-        return Optional.ofNullable(pessoa);
+        return Optional.empty();
     }
     
-    private List<String> mapStacks(java.sql.Array sqlArray) throws SQLException {
-        if (sqlArray == null) {
+    private List<String> stringToStackList(String stackStr) {
+        if (stackStr == null || stackStr.isEmpty()) {
             return Collections.emptyList();
         }
-        String[] array = (String[]) sqlArray.getArray();
-        return Arrays.asList(array);
+        return Arrays.asList(stackStr.split(" "));
     }
 }

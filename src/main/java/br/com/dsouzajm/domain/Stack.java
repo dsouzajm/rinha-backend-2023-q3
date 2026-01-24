@@ -32,25 +32,4 @@ public class Stack implements Serializable {
     public void setStack(String stack) {
         this.stack = stack;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Stack stack1 = (Stack) o;
-        return Objects.equals(id, stack1.id) && Objects.equals(stack, stack1.stack);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, stack);
-    }
-
-    @Override
-    public String toString() {
-        return "Stack{" +
-                "id=" + id +
-                ", stack='" + stack + '\'' +
-                '}';
-    }
 }
